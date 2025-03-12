@@ -11,21 +11,50 @@ const articles = (await getCollection("article")).sort(
 ---
 
 <html lang="en" class="">
-  <head><BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} /></head>
+  <head
+    ><BaseHead
+      title={`Articles | ${SITE_TITLE}`}
+      description={SITE_DESCRIPTION}
+    /></head
+  >
   <body class="h-screen flex flex-col bg-background text-foreground">
     <Header />
-    <main class="flex-1">
+    <main class="flex-1 container mx-auto px-4 py-12">
       <section class="max-w-2xl mx-auto">
-        <h1 class="text-9xl">Articles</h1>
-        <ul class="flex flex-col gap-4 w-full">
-          {
-            articles.map((article) => (
-              <li>
-                <a href={`/articles/${article.id}`}>{article.data.title}</a>
-              </li>
-            ))
-          }
-        </ul>
+        <div class="flex justify-center items-center mb-16">
+          <div class="text-center">
+            <h1 class="text-4xl md:text-6xl mb-4">Notes</h1>
+          </div>
+        </div>
+        <div class="mt-12">
+          <ul class="space-y-8">
+            {
+              articles.map((article) => (
+                <li class="border-b border-foreground/20 pb-6">
+                  <a
+                    href={`/articles/${article.id}`}
+                    class="block group hover:opacity-80 transition-opacity"
+                  >
+                    <div class="flex flex-col gap-2">
+                      <time
+                        datetime={article.data.pubDate.toISOString()}
+                        class="text-sm opacity-60"
+                      >
+                        {article.data.pubDate.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </time>
+                      <h2 class="text-2xl font-medium">{article.data.title}</h2>
+                      <p class="opacity-70">{article.data.description}</p>
+                    </div>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
       </section>
     </main>
     <Footer />
