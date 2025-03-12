@@ -7,22 +7,62 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
 <!doctype html>
 <html lang="en" class="">
-  <head><BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} /></head>
-  <body class="h-screen flex flex-col bg-background text-foreground">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <script is:inline>
+      // Check for saved theme preference or use system preference
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+
+      // Set initial theme
+      if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    </script>
+  </head>
+  <body
+    class="h-screen flex flex-col bg-background text-foreground transition-colors duration-300"
+  >
     <Header />
-    <main class="flex-1 max-w-7xl mx-auto px-8">
-      <div class="flex flex-col w-full justify-around h-full">
-        <h1
-          class="font-libre-franklin text-9xl sm:text-[12rem] md:text-[14rem] font-thin transition-all duration-300 ease-in"
+    <main class="flex-1 max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <div class="flex flex-col w-full justify-center h-full">
+        <div class="flex flex-col items-center mb-12">
+          <h1
+            class="font-libre-franklin text-8xl sm:text-9xl md:text-[12rem] font-thin transition-all duration-500 ease-in-out hover:text-primary hover:scale-105"
+          >
+            {`< />`}
+          </h1>
+          <div class="h-1 w-24 bg-primary mt-4 rounded-full"></div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start gap-8 max-w-4xl mx-auto w-full"
         >
-          {`< />`}
-        </h1>
-        <div class="flex flex-col sm:flex-row justify-around items-start gap-4">
-          <div class="px-8">
-            <p>A collection of notes for personal reference.</p>
+          <div class="px-4 sm:px-8 space-y-4">
+            <h2 class="text-xl md:text-2xl font-semibold text-primary">
+              Welcome
+            </h2>
+            <p class="text-lg opacity-90">
+              A collection of notes for personal reference.
+            </p>
+            <p class="text-sm opacity-75 max-w-md">
+              Explore programming concepts, tutorials, and helpful resources
+              curated for quick access and reference.
+            </p>
+            <a
+              href="/blog"
+              class="inline-block mt-4 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-md transition-colors duration-300"
+            >
+              Browse Notes →
+            </a>
           </div>
-          <pre
-            class="ml-auto font-bold">          ___
+          <div class="ml-auto">
+            <pre
+              class="font-bold text-primary/80 hover:text-primary transition-colors duration-300 select-none">          ___
 　　　  ／フ    フ
 　　　　|  .   .|
 　 　　／`ミ__xノ
@@ -32,9 +72,23 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 ／￣ 　　 | | |
 | (￣ヽ_ヽ)_)__)
 ＼二つ</pre>
+          </div>
         </div>
       </div>
     </main>
     <Footer />
+
+    <script>
+      // Add a subtle animation to the code brackets
+      const codeElement = document.querySelector("h1");
+      if (codeElement) {
+        setInterval(() => {
+          codeElement.classList.add("scale-105");
+          setTimeout(() => {
+            codeElement.classList.remove("scale-105");
+          }, 1000);
+        }, 5000);
+      }
+    </script>
   </body>
 </html>
