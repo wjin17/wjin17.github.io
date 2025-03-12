@@ -1,0 +1,76 @@
+---
+description: ALWAYS use when writing or updating Markdown files to ensure consistent formatting and readability
+globs: **/*.md
+---
+# Markdown Documentation Standards
+
+## Context
+- When creating or updating README files
+- When writing documentation
+- When creating guides or instructions
+
+## Requirements
+- Use proper heading hierarchy (# for title, ## for sections)
+- Include a descriptive title at the top of each document
+- Wrap code snippets in proper markdown code blocks with language specified
+- Use bullet points for lists rather than long paragraphs
+- Include a Table of Contents for documents longer than 3 sections
+- Link to related documents and resources when relevant
+- Keep line length under 100 characters
+- Use relative links for internal documentation references
+- Include setup/installation instructions in project READMEs
+
+## Examples
+<example>
+```md
+# Project Title
+
+Brief project description that explains purpose and core features.
+
+## Table of Contents
+- @Installation
+- @Usage
+- @Configuration
+
+## Installation
+
+```bash
+npm install my-package
+```
+
+## Usage
+
+Import and use the package:
+
+```typescript
+import { myFunction } from 'my-package';
+
+// Example usage
+const result = myFunction();
+```
+
+## Configuration
+
+Configure the package using these options:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `debug` | boolean | `false` | Enable debug mode |
+```
+
+Good example with proper hierarchy, code blocks, and structured content
+</example>
+
+<example type="invalid">
+```md
+PROJECT TITLE
+
+This project does stuff. Install it with npm install my-package. 
+To use it, do this: import { myFunction } from 'my-package'; const result = myFunction();
+Configuration: you can set debug to true or false.
+```
+
+Incorrect: Missing proper headings, code blocks, and structure
+</example>
+
+<version>1.0.0</version>

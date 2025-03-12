@@ -1,0 +1,64 @@
+---
+description: APPLY when WRITING or MODIFYING TypeScript code to ENSURE type safety and code quality
+globs: src/**/*.ts
+---
+
+# TypeScript Standards
+
+## Context
+- When creating or modifying TypeScript files
+- For all non-component TypeScript code
+
+## Requirements
+- Use explicit typing rather than relying on type inference when defining functions and variables
+- Prefer interfaces over types for object definitions
+- Use readonly for properties that should not be modified
+- Export types and interfaces from dedicated type files when used across multiple components
+- Avoid using any type unless absolutely necessary
+- Use const assertions for literal values
+
+## Examples
+<example>
+```typescript
+// Type definitions
+export interface Article {
+  readonly id: string;
+  title: string;
+  content: string;
+  publishDate: Date;
+  tags: string[];
+}
+
+// Function with explicit return type
+export function formatArticleTitle(article: Article): string {
+  return `${article.title} (${article.publishDate.toLocaleDateString()})`;
+}
+
+// Const assertions
+export const SITE_CONFIG = {
+  title: "My Astro Site",
+  description: "An Astro-powered website"
+} as const;
+```
+
+Good example with explicit types and const assertions
+</example>
+
+<example type="invalid">
+```typescript
+// Avoid missing types
+export function formatArticleTitle(article) {
+  return `${article.title} (${article.publishDate.toLocaleDateString()})`;
+}
+
+// Avoid any
+export const fetchData = async (): Promise<any> => {
+  const response = await fetch('/api/data');
+  return response.json();
+};
+```
+
+Missing type definitions and using any
+</example>
+
+<version>1.0.0</version>

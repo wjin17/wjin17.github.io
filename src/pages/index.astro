@@ -1,0 +1,40 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="en" class="">
+  <head><BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} /></head>
+  <body class="h-screen flex flex-col bg-background text-foreground">
+    <Header />
+    <main class="flex-1 max-w-7xl mx-auto px-8">
+      <div class="flex flex-col w-full justify-around h-full">
+        <h1
+          class="font-libre-franklin text-9xl sm:text-[12rem] md:text-[14rem] font-thin transition-all duration-300 ease-in"
+        >
+          {`< />`}
+        </h1>
+        <div class="flex flex-col sm:flex-row justify-around items-start gap-4">
+          <div class="px-8">
+            <p>A collection of notes for personal reference.</p>
+          </div>
+          <pre
+            class="ml-auto font-bold">          ___
+　　　  ／フ    フ
+　　　　|  .   .|
+　 　　／`ミ__xノ
+　 　 /　　 　 |
+　　 /　 ヽ　　ﾉ
+　  │　　 | | |
+／￣ 　　 | | |
+| (￣ヽ_ヽ)_)__)
+＼二つ</pre>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>

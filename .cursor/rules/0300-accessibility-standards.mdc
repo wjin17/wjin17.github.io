@@ -1,0 +1,85 @@
+---
+description: ENFORCE when BUILDING UI components to ENSURE accessibility compliance across the project
+globs: src/**/*.{astro,tsx,jsx}
+---
+# Accessibility Standards
+
+## Context
+- When creating or modifying UI components
+- For all interactive elements and content
+- For all pages and layout structures
+
+## Requirements
+- Use semantic HTML elements (nav, main, section, article) appropriately
+- Ensure all images have descriptive alt text
+- Maintain proper heading hierarchy (h1-h6)
+- Provide sufficient color contrast (WCAG AA minimum)
+- Ensure keyboard navigability for all interactive elements
+- Add aria-labels to elements without visible text
+- Create focus states for interactive elements
+- Make form inputs properly labeled and associated with their labels
+- Ensure dynamic content changes are announced to screen readers
+
+## Examples
+<example>
+```astro
+<nav aria-label="Main navigation">
+  <ul>
+    <li><a href="/" class="focus:ring-2 focus:ring-primary">Home</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+  <h1>Page Title</h1>
+  
+  <button 
+    type="button" 
+    aria-label="Close dialog" 
+    class="btn focus:outline-none focus:ring-2"
+  >
+    <span class="sr-only">Close</span>
+    <svg aria-hidden="true"><!-- icon --></svg>
+  </button>
+  
+  <Image 
+    src={heroImage} 
+    alt="A detailed description of what the image shows" 
+  />
+  
+  <form>
+    <label for="name-input">Your Name</label>
+    <input id="name-input" type="text" />
+  </form>
+</main>
+```
+
+Good example with semantic elements, proper ARIA attributes, and form labeling
+</example>
+
+<example type="invalid">
+```astro
+<div class="nav">
+  <div>
+    <div><a href="/">Home</a></div>
+  </div>
+</div>
+
+<div class="content">
+  <h3>Page Title</h3>
+  
+  <div class="btn" onclick="closeDialog()">
+    <img src="/icons/x.svg" />
+  </div>
+  
+  <img src="/images/hero.jpg" />
+  
+  <form>
+    <input type="text" placeholder="Your Name" />
+  </form>
+</div>
+```
+
+Incorrect: Non-semantic markup, missing alt text, improper heading level, no labels
+</example>
+
+<version>1.0.0</version>

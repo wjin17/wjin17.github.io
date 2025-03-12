@@ -1,0 +1,68 @@
+---
+description: FOLLOW when CREATING or EDITING Astro components to ENSURE consistency and best practices
+globs: src/components/*.astro
+---
+
+# Astro Component Standards
+
+## Context
+- When creating or modifying Astro components
+- For all UI components in the src/components directory
+
+## Requirements
+- Keep components focused on a single responsibility
+- Use client:* directives only when necessary for interactivity
+- Props should be properly typed at the top of the component
+- Follow kebab-case for CSS class names
+- Use the global theme variables for colors and fonts
+
+## Examples
+<example>
+```astro
+---
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<div class="card-component">
+  <h2>{title}</h2>
+  {description && <p>{description}</p>}
+</div>
+
+<style>
+  .card-component {
+    color: var(--color-primary);
+    font-family: var(--font-atkinson);
+  }
+</style>
+```
+
+Good example with proper props typing and using theme variables
+</example>
+
+<example type="invalid">
+```astro
+---
+const { title } = Astro.props;
+---
+
+<div class="cardComponent">
+  <h2>{title}</h2>
+</div>
+
+<style>
+  .cardComponent {
+    color: #014421;
+    font-family: 'Atkinson Regular', sans-serif;
+  }
+</style>
+```
+
+Missing props interface, using camelCase for class names, and hardcoding values instead of theme variables
+</example>
+
+<version>1.0.0</version> 

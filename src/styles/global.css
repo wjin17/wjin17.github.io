@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-libre-franklin: "Libre Franklin", sans-serif;
+  --color-primary: #3c3d37;
+  --color-secondary: #697565;
+  --color-accent: #ecdfcc;
+  --color-background: #ffffff;
+  --color-foreground: #0e110c;
+}
+
+@layer base {
+  :root {
+    font-weight: 100;
+  }
+
+  .dark {
+    --color-background: #0e110c;
+    --color-foreground: #ffffff;
+  }
+}
+
+/* Remove incorrect theme extension and empty utilities layer */

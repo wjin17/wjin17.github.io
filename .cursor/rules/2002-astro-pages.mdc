@@ -1,0 +1,70 @@
+---
+description: APPLY when CREATING or EDITING Astro pages to ENSURE consistent structure and performance
+globs: src/pages/**/*.astro
+---
+# Astro Pages Standards
+
+## Context
+- When creating or modifying Astro page components
+- For all files in the src/pages directory and subdirectories
+
+## Requirements
+- Use the appropriate layout from src/layouts for each page
+- Include proper metadata (title, description) for SEO
+- Optimize images with Astro's built-in image optimization
+- Organize page components logically with clear section demarcation
+- Include OpenGraph metadata for social sharing when relevant
+- Use client:* directives sparingly and only when needed
+
+## Examples
+<example>
+```astro
+---
+import Layout from "../layouts/MainLayout.astro";
+import { Image } from "astro:assets";
+import myImage from "../assets/images/sample.jpg";
+
+const title = "Page Title";
+const description = "Page description for SEO purposes";
+---
+
+<Layout 
+  title={title} 
+  description={description} 
+  ogImage={myImage.src}
+>
+  <main>
+    <section class="hero-section">
+      <h1>{title}</h1>
+      <Image src={myImage} alt="Description of image" />
+    </section>
+    
+    <section class="content-section">
+      <p>Page content goes here</p>
+    </section>
+  </main>
+</Layout>
+```
+
+Good example with proper layout usage, metadata, and image optimization
+</example>
+
+<example type="invalid">
+```astro
+---
+import Layout from "../layouts/MainLayout.astro";
+---
+
+<Layout>
+  <div>
+    <h1>Page Title</h1>
+    <img src="/images/sample.jpg" />
+    <p>Content here</p>
+  </div>
+</Layout>
+```
+
+Missing metadata, unoptimized images, and poor content structure
+</example>
+
+<version>1.0.0</version>

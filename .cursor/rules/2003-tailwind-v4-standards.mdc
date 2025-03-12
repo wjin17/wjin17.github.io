@@ -1,0 +1,85 @@
+---
+description: description: FOLLOW when WRITING or EDITING CSS with Tailwind v4 to ENSURE modern best practices
+globs: globs: src/styles/*.css
+alwaysApply: false
+---
+# Tailwind v4 CSS Standards
+
+## Context
+- When creating or modifying CSS files that use Tailwind v4
+- When defining CSS variables for theming
+- When extending Tailwind's theme
+
+## Requirements
+- Use CSS variables in the `:root` and `.dark` selectors for theme values
+- Define theme extensions in `tailwind.config.js` rather than custom utility classes
+- Reference CSS variables in the theme extension using `var(--variable-name)` syntax
+- Use kebab-case for all CSS variable names
+- Organize CSS variables by type (colors, fonts, spacing, etc.)
+- Import Tailwind using `@import "tailwindcss";` at the top of global CSS files
+- Use `@layer base` for CSS variable definitions
+- Avoid creating custom utility classes that duplicate Tailwind functionality
+
+## Examples
+<example>
+```css
+/* In global.css */
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #014421;
+    --color-background: #ffffff;
+    --font-heading: "Atkinson Regular", sans-serif;
+  }
+  
+  .dark {
+    --color-primary: #014421;
+    --color-background: #000000;
+  }
+}
+```
+
+```js
+/* In tailwind.config.js */
+export default {
+  content: ["./src/**/*.{astro,html,js,jsx,ts,tsx,vue}"],
+  theme: {
+    extend: {
+      colors: {
+        primary: "var(--color-primary)",
+        background: "var(--color-background)"
+      },
+      fontFamily: {
+        heading: ["var(--font-heading)"]
+      }
+    }
+  }
+}
+```
+
+Good example using CSS variables in root and extending Tailwind's theme in the config file
+</example>
+
+<example type="invalid">
+```css
+/* In global.css */
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --colorPrimary: #014421;
+  }
+}
+
+@layer utilities {
+  .bg-primary {
+    background-color: var(--colorPrimary);
+  }
+}
+```
+
+Incorrect: Using camelCase for variable names and creating custom utility classes instead of extending the theme in tailwind.config.js
+</example>
+
+<version>1.0.0</version>

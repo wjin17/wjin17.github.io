@@ -1,0 +1,54 @@
+---
+description: FOLLOW when WRITING or EDITING CSS to MAINTAIN consistent styling across the project
+globs: src/styles/*.css
+---
+# CSS and Styling Standards
+
+## Context
+- When creating or modifying CSS files
+- When adding styles to components
+- When working with Tailwind CSS
+
+## Requirements
+- Use Tailwind utility classes for layout and basic styling whenever possible
+- Define custom theme variables in global.css for reusable values
+- Follow kebab-case for all custom CSS class names
+- Avoid inline styles in components
+- Use responsive design principles with Tailwind's responsive modifiers
+- Keep component-specific styles in the component's <style> tag
+
+## Examples
+<example>
+```css
+/* In global.css */
+@theme {
+  --color-primary: #014421;
+  --font-atkinson: "Atkinson Regular", sans-serif;
+}
+
+/* In component */
+<style>
+  .feature-card {
+    background-color: var(--color-primary);
+    border-radius: 0.5rem;
+  }
+</style>
+```
+
+Good example using theme variables and kebab-case
+</example>
+
+<example type="invalid">
+```css
+/* Avoid hardcoding values */
+.featureCard {
+  background-color: #014421;
+  font-family: "Atkinson Regular", sans-serif;
+  border-radius: 8px;
+}
+```
+
+Incorrect: Using camelCase and hardcoded values instead of variables
+</example>
+
+<version>1.0.0</version>
