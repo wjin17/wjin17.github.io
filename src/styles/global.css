@@ -3,30 +3,11 @@
 
 @theme {
   --font-libre-franklin: "Libre Franklin", sans-serif;
-  --color-primary: #3b82f6;
-  --color-secondary: #60a5fa;
-  --color-accent: #ecdfcc;
-  --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
-}
-
-@layer base {
-  :root {
-    font-weight: 100;
-    --color-background: #ffffff;
-    --color-foreground: #1a1a1a;
-    --color-primary: #3b82f6;
-  }
-
-  .dark {
-    --color-background: #121212;
-    --color-foreground: #e0e0e0;
-    --color-primary: #60a5fa;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
+  --color-primary: #3c3d37;
+  --color-primary-foreground: #ecdfcc;
+  --color-primary-accent: #869382;
+  --color-background: #697565;
+  --color-foreground: #181c14;
 }
 
 /* Transitions for theme switching */
@@ -36,5 +17,3 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
-
-/* Remove incorrect theme extension and empty utilities layer */

@@ -1,11 +1,31 @@
 ---
+const variants = {
+  primary: "bg-primary text-primary-foreground",
+  ghost: "bg-transparent text-primary-foreground hover:bg-primary/40",
+};
+
+const sizes = {
+  icon: "p-1",
+  sm: "px-2 py-1 text-sm",
+  md: "px-3 py-2",
+  lg: "px-4 py-3 text-lg",
+};
+
 interface Props {
-  children: string;
+  variant?: keyof typeof variants;
+  size?: keyof typeof sizes;
+  class?: string;
 }
 
-const { children } = Astro.props;
+const {
+  variant = "primary",
+  size = "md",
+  class: className = "",
+}: Props = Astro.props;
 ---
 
-<button class="bg-blue-500 text-foreground p-2 rounded-md">
-  <h1>Button!</h1>
+<button
+  class={`${variants[variant]} ${sizes[size]} cursor-pointer rounded-xl ${className}`}
+>
+  <slot />
 </button>

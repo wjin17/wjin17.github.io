@@ -65,15 +65,3 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
-
-<!-- Dark mode -->
-<script>
-  const userPrefersDark = window.matchMedia(
-    "(prefers-color-scheme: dark)"
-  ).matches;
-  const storedTheme = localStorage.getItem("theme");
-  const isDarkMode =
-    storedTheme === "dark" || (!storedTheme && userPrefersDark);
-
-  document.documentElement.classList.toggle("dark", isDarkMode);
-</script>

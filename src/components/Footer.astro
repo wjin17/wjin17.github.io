@@ -1,12 +1,15 @@
 ---
 import { LuGithub } from "react-icons/lu";
 import { PiLinkedinLogo } from "react-icons/pi";
-import { Button } from "./react/Button";
+import Link from "./Link.astro";
 ---
 
 <footer class="px-8 py-8">
   <div class="flex justify-end items-center max-w-6xl mx-auto gap-4">
-    <Button client:load><h1><LuGithub size={32} /></h1></Button>
-    <Button client:load><h1><PiLinkedinLogo size={32} /></h1></Button>
+    <Link href="https://github.com/wjin17" external><LuGithub size={32} /></Link
+    >
+    <Link href="https://www.linkedin.com/in/willjin1796/" external
+      ><PiLinkedinLogo size={32} /></Link
+    >
   </div>
 </footer>

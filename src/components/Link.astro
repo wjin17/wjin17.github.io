@@ -1,11 +1,19 @@
 ---
 interface Props {
   href: string;
+  external?: boolean;
 }
 
-const { href } = Astro.props;
+const { href, external = false } = Astro.props;
+const linkProps = external
+  ? { target: "_blank", rel: "noopener noreferrer" }
+  : {};
 ---
 
-<a href={href} class="text-foreground hover:underline">
+<a
+  href={href}
+  {...linkProps}
+  class="text-foreground hover:underline hover:text-foreground/60 transition-colors duration-300 ease-in-out"
+>
   <slot />
 </a>
