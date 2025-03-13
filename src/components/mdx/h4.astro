@@ -1,0 +1,11 @@
+---
+type Props = {
+  class: string;
+};
+
+const { class: className, ...props } = Astro.props;
+---
+
+<h4 class={`mt-4 text-xl ${className}`} {...props}>
+  <slot />
+</h4>

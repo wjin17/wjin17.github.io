@@ -1,8 +1,9 @@
 ---
-description: description: FOLLOW when WRITING or EDITING CSS with Tailwind v4 to ENSURE modern best practices
-globs: globs: src/styles/*.css
+description: FOLLOW when WRITING or EDITING CSS with Tailwind v4 to ENSURE modern best practices
+globs: src/styles/*.css
 alwaysApply: false
 ---
+
 # Tailwind v4 CSS Standards
 
 ## Context
@@ -82,4 +83,4 @@ Good example using CSS variables in root and extending Tailwind's theme in the c
 Incorrect: Using camelCase for variable names and creating custom utility classes instead of extending the theme in tailwind.config.js
 </example>
 
-<version>1.0.0</version>
+<version>1.0.0</version> 

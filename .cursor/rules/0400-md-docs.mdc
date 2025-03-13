@@ -1,7 +1,9 @@
 ---
 description: ALWAYS use when writing or updating Markdown files to ensure consistent formatting and readability
 globs: **/*.md
+alwaysApply: false
 ---
+
 # Markdown Documentation Standards
 
 ## Context
@@ -28,9 +30,9 @@ globs: **/*.md
 Brief project description that explains purpose and core features.
 
 ## Table of Contents
-- @Installation
-- @Usage
-- @Configuration
+- [Installation](mdc:#installation)
+- [Usage](mdc:#usage)
+- [Configuration](mdc:#configuration)
 
 ## Installation
 
@@ -73,4 +75,4 @@ Configuration: you can set debug to true or false.
 Incorrect: Missing proper headings, code blocks, and structure
 </example>
 
-<version>1.0.0</version>
+<version>1.0.0</version> 

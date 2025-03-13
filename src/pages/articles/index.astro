@@ -6,7 +6,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
 
 const articles = (await getCollection("article")).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
@@ -17,23 +17,23 @@ const articles = (await getCollection("article")).sort(
       description={SITE_DESCRIPTION}
     /></head
   >
-  <body class="h-screen flex flex-col bg-background text-foreground">
+  <body class="bg-background text-foreground flex h-screen flex-col">
     <Header />
-    <main class="flex-1 container mx-auto px-4 py-12">
-      <section class="max-w-2xl mx-auto">
-        <div class="flex justify-center items-center mb-16">
+    <main class="container mx-auto flex-1 px-4 py-12">
+      <section class="mx-auto max-w-2xl">
+        <div class="mb-16 flex items-center justify-center">
           <div class="text-center">
-            <h1 class="text-4xl md:text-6xl mb-4">Notes</h1>
+            <h1 class="mb-4 text-4xl md:text-6xl">Notes</h1>
           </div>
         </div>
         <div class="mt-12">
           <ul class="space-y-8">
             {
               articles.map((article) => (
-                <li class="border-b border-foreground/20 pb-6">
+                <li class="border-foreground/20 border-b pb-6">
                   <a
                     href={`/articles/${article.id}`}
-                    class="block group hover:opacity-80 transition-opacity"
+                    class="group block transition-opacity hover:opacity-80"
                   >
                     <div class="flex flex-col gap-2">
                       <time

@@ -1,0 +1,11 @@
+---
+type Props = {
+  class: string;
+};
+
+const { class: className, ...props } = Astro.props;
+---
+
+<ol class={`list-decimal my-4 pl-4 ${className}`} {...props}>
+  <slot />
+</ol>

@@ -2,6 +2,7 @@
 description: ENFORCE when BUILDING UI components to ENSURE accessibility compliance across the project
 globs: src/**/*.{astro,tsx,jsx}
 ---
+
 # Accessibility Standards
 
 ## Context

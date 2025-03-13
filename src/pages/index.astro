@@ -10,31 +10,31 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
-  <body class="h-screen flex flex-col bg-background text-foreground">
+  <body class="bg-background text-foreground flex h-screen flex-col">
     <Header />
-    <main class="flex-1 max-w-7xl mx-auto px-4 md:px-8 py-8">
-      <div class="flex flex-col w-full justify-center h-full">
-        <div class="flex flex-col items-center mb-12">
-          <h1 class="font-libre-franklin text-9xl sm:text-[12rem] font-thin">
+    <main class="mx-auto max-w-7xl flex-1 px-4 py-8 md:px-8">
+      <div class="flex h-full w-full flex-col justify-center">
+        <div class="mb-12 flex flex-col items-center">
+          <h1 class="font-libre-franklin text-9xl font-thin sm:text-[12rem]">
             {`< />`}
           </h1>
         </div>
 
         <div
-          class="flex flex-col sm:flex-row justify-between items-start gap-8 max-w-4xl mx-auto w-full"
+          class="mx-auto flex w-full max-w-4xl flex-col items-start justify-between gap-8 sm:flex-row"
         >
-          <div class="px-4 sm:px-8 space-y-4">
+          <div class="space-y-4 px-4 sm:px-8">
             <p class="text-lg opacity-90">
               A collection of notes for personal reference.
             </p>
-            <p class="text-sm opacity-75 max-w-md">
+            <p class="max-w-md text-sm opacity-75">
               Concepts, tutorials, and helpful resources curated for quick
               access and reference.
             </p>
           </div>
           <div class="ml-auto">
             <pre
-              class="font-bold text-primary-accent">          ___
+              class="text-primary-accent font-bold">          ___
 　　　  ／フ    フ
 　　　　|  .   .|
 　 　　／`ミ__xノ

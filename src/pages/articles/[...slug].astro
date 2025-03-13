@@ -3,6 +3,17 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import Article from "../../layouts/Article.astro";
 import { render } from "astro:content";
 
+import H1 from "../../components/mdx/h1.astro";
+import H2 from "../../components/mdx/h2.astro";
+import H3 from "../../components/mdx/h3.astro";
+import H4 from "../../components/mdx/h4.astro";
+import H5 from "../../components/mdx/h5.astro";
+import P from "../../components/mdx/p.astro";
+import A from "../../components/mdx/a.astro";
+import Pre from "../../components/mdx/pre.astro";
+import Code from "../../components/mdx/code.astro";
+import Ol from "../../components/mdx/ol.astro";
+
 export async function getStaticPaths() {
   const articles = await getCollection("article");
   return articles.map((article) => ({
@@ -14,8 +25,25 @@ type Props = CollectionEntry<"article">;
 
 const post = Astro.props;
 const { Content } = await render(post);
+
+const components = {
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: H4,
+  h5: H5,
+  p: P,
+  a: A,
+  code: Code,
+  pre: Pre,
+  ol: Ol,
+};
 ---
 
 <Article {...post.data}>
-  <Content />
+  <div
+    class="prose prose-lg prose-headings:font-medium prose-headings:text-foreground prose-p:text-foreground/90"
+  >
+    <Content {...{ components }} />
+  </div>
 </Article>

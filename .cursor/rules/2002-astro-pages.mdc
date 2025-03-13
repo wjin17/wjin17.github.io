@@ -1,7 +1,9 @@
 ---
 description: APPLY when CREATING or EDITING Astro pages to ENSURE consistent structure and performance
 globs: src/pages/**/*.astro
+alwaysApply: false
 ---
+
 # Astro Pages Standards
 
 ## Context

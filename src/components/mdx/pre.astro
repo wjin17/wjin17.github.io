@@ -1,0 +1,21 @@
+---
+import { LuCopy, LuCheck } from "react-icons/lu";
+type Props = {
+  class: string;
+};
+
+const { class: className, ...props } = Astro.props;
+---
+
+<div class="relative">
+  <pre
+    class={`my-4 rounded-md p-4 text-wrap flex items-start w-full pr-12 text-sm ${className}`}
+    {...props}><slot /></pre>
+  <button
+    id="copy-button"
+    class="text-secondary bg-primary text-primary-accent absolute top-4 right-4 cursor-pointer rounded-md p-1"
+  >
+    <span id="copy-icon"><LuCopy size={12} /></span>
+    <span id="copied-icon" class="hidden"><LuCheck size={12} /></span>
+  </button>
+</div>
