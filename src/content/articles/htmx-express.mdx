@@ -1,0 +1,396 @@
+---
+title: "HTMX + Express"
+description: "Setting up a basic chat application with HTMX and Express. An anthology of headaches."
+pubDate: "May 16 2024"
+---
+
+You can find the template [here](https://github.com/wjin17/ts-templates/tree/htmx).
+
+The main value proposition of this template is to demonstrate how to create a full-stack TypeScript application that shares a common UI templating library between the frontend and backend and shares a development server. When using HTMX, we don't receive JSON from the server; instead, we receive elements. For small applications, responses are easy to generate, but on a larger scale, it becomes cumbersome to manage consistency between the frontend and backend.
+
+## Overview
+
+In development, we rely on the Vite dev server to act as our main server. We can then export our API routes from our backend and import them into our Vite config. To use these API routes, we'll define a custom Vite plugin that will use our API routes as middleware and add them to the dev server.
+
+In production-like environments, we can bundle the frontend and backend files and serve them normally with Express.
+
+### Is Adding Vite to an HTMX App Overkill?
+
+Well, sort of. HTMX exists in a niche where backend developers can create interactive frontends without dealing with frontend tooling/build processes. You can get away with only serving static files and returning HTML strings from the backend, but if you want access to tools like Tailwind, TypeScript support, and bundle optimization, Vite is a great way to achieve all of that.
+
+To explain the concepts in this template, I'll detail the steps to setting up a project like this.
+
+## Getting Started
+
+Step one is to read the [workspaces](/articles/workspaces) article and set up a monorepo with shared configs.
+
+### Setting Up the Frontend
+
+Start by creating a new package under `apps/client` or `apps/web` and install Vite and TypeScript.
+
+Your `package.json` should look something like this:
+
+```json
+{
+  "name": "@apps/client",
+  "type": "module",
+  "private": true,
+  "description": "The client application",
+  "scripts": {
+    "dev": "vite --configLoader runner",
+    "build": "tsc && vite build",
+    "start": "vite preview",
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .cache dist .turbo node_modules"
+  },
+  "dependencies": {
+    "@packages/ui": "*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "tailwind-merge": "^3.0.2"
+  },
+  "devDependencies": {
+    "@apps/api": "*",
+    "@packages/eslint-config": "*",
+    "@packages/lib": "*",
+    "@packages/ts-config": "*",
+    "@packages/vite-plugins": "*",
+    "@tailwindcss/vite": "^4.0.12",
+    "eslint": "^9.22.0",
+    "tailwindcss": "^4.0.12",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.1"
+  }
+}
+```
+
+Some interesting things to note:
+
+We're starting the dev server with `vite --configLoader runner`. This allows us to import TypeScript files into our Vite config.
+
+You might see some interesting dependencies like `@packages/vite-plugins` and `@apps/api`. We'll get to these later.
+
+Now we want to include two `tsconfig` files, one for building the frontend and one for the Vite config itself.
+
+```json
+// tsconfig.app.json
+{
+  "extends": "@packages/ts-config/base.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./.cache/tsconfig.app.tsbuildinfo",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "moduleDetection": "force",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+```
+
+Since Vite automatically transpiles our code at build time, we can set the target to `ESNext`.
+
+We also let this config know that it's responsible for everything under `src`.
+
+```json
+// tsconfig.node.json
+{
+  "extends": "@packages/ts-config/base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "inlineSources": true,
+    "noEmit": true,
+    "sourceMap": true
+  },
+  "include": ["vite.config.ts"]
+}
+```
+
+In this config, we're setting our target build to `ES2022` since this will be used as the config for our Vite config at build time.
+
+Since we're targeting a local environment, we'll set the target to `ES2022` so it's compatible with our local Node instance.
+
+Now we can create our Vite config.
+
+```ts
+// vite.config.ts
+import type { UserConfig } from "vite";
+
+import { env } from "@packages/lib/backend/env";
+import tailwindcss from "@tailwindcss/vite";
+import path from "node:path";
+import { defineConfig } from "vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  root: "./src",
+  publicDir: "../public",
+  build: {
+    outDir: "../dist",
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(import.meta.dirname, "src/index.html"),
+        nested: path.resolve(import.meta.dirname, "src/chat/index.html"),
+      },
+    },
+  },
+  server: {
+    port: env.PORT,
+  },
+  plugins: [
+    tailwindcss(),
+  ],
+  resolve: {
+    extensions: [".ts", ".js", ".json"],
+  },
+  css: {
+    modules: {
+      localsConvention: "camelCaseOnly",
+    },
+  },
+}) as UserConfig;
+```
+
+Pretty standard setup.
+
+Go ahead and add your frontend `*.html` and add script tags for all frontend `*.ts` files.
+
+### Setting Up the Backend
+
+```json
+// package.json
+{
+  "name": "@apps/api",
+  "type": "module",
+  "private": true,
+  "description": "The API server",
+  "exports": {
+    "./app": {
+      "types": "./src/app.ts",
+      "default": "./dist/app.js"
+    }
+  },
+  "scripts": {
+    "dev:server": "NODE_ENV=development tsx watch src/server.ts --exclude \"**/__tests__/**\"",
+    "build": "rollup -c",
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,md}\"",
+    "clean": "rm -rf .cache dist .rollup.cache .turbo",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    ... deps
+  },
+  "devDependencies": {
+    ... more deps
+  }
+}
+```
+
+You might notice here that I am exporting the app from this package. I'll explain more about this after we set up TypeScript.
+
+Do the same thing but now install Express and set up TypeScript. Here's my `tsconfig` for this.
+
+You should also note that there is no base dev script here. Since we'll be using the Vite dev server to run our backend, we don't need to run a separate server. We expose the script `dev:server` to allow running just the API server.
+
+```json
+{
+  "extends": "@packages/ts-config/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./.cache/tsconfig.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "inlineSources": true,
+    "noEmit": true,
+    "sourceMap": true
+  },
+  "include": ["./src/**/*.ts", "./src/@types/*.d.ts"]
+}
+```
+
+Nothing special here either except we want to include the DOM library so we have access to browser types. This is useful for getting types when using HTML templates.
+
+Also, since we're not using any transpilers or anything, we want to target an ES version that's compatible with our local Node instance.
+
+Go ahead and add your backend `*.ts` files.
+
+#### Backend Structure
+
+Typically, guides will tell you to invoke your server listen method in the same file as the one you use to set up all your middlewares. You want to make sure you separate those.
+
+Essentially, you want to create an Express app with all the routes and middlewares and export that. Then in another file, you want to import the app and then call the listen.
+
+```ts
+// app.ts
+import express from "express";
+... other imports
+
+import { apiRouter } from "./routes";
+
+export const app = express()
+  .use(bodyParser.json())
+  ... other middlewares
+  .use(apiRouter);
+```
+
+```ts
+// server.ts
+import { app } from "./app";
+
+app.listen(env.PORT, () => {
+  console.log(`Server is running on port ${env.PORT}`);
+});
+```
+
+### Bringing It All Together
+
+The majority of articles and guides will tell you to run your frontend and backend in tandem while proxying requests from the frontend to the backend to make it seem like they have the same origin.
+
+I say, enough is enough. There's no reason why I should have to run two servers and jump through hoops just to get a simple API response.
+
+We will now import our API app into our frontend and pass it to the Vite dev server as middleware. You can also export the Vite dev server as middleware and use it in your backend API route as a connect-style middleware.
+
+#### Vite Dev Server
+
+The Vite dev server utilizes the [connect](https://www.npmjs.com/package/connect) framework under the hood. This is the same framework that Express uses as well.
+
+Connect is a middleware framework that acts as a glue for all your middleware. You can then pass the app to any connect-style server and have it process requests and responses.
+
+To interact with the Vite dev server outside of what's available in the config, we can create a plugin.
+
+#### Vite Plugins
+
+[Reference](https://vite.dev/guide/api-plugin.html)
+
+Vite plugins can be written directly in the config or in a separate file. They allow us to hook into build processes or server setup and modify those actions.
+
+#### Creating Our API Plugin
+
+We want to create a plugin that accepts an Express app instance and then attaches that to the Vite dev server as middleware.
+
+I have this in a separate package for demonstration purposes, and if you plan on adding more than one app to your monorepo, you should too.
+
+```ts
+import type { NextHandleFunction } from "connect";
+import type { Plugin } from "vite";
+
+export type AddApiOptions = {
+  app: NextHandleFunction;
+};
+export const addApi = ({ app }: AddApiOptions): Plugin => ({
+  name: "add-api-middleware",
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      return apiRouter(req, res, next);
+    });
+  },
+});
+```
+
+#### Using the Plugin
+
+Now we can use this plugin in our Vite config.
+
+```ts
+...
+import { app } from "@apps/api/app"; // make sure to import our app
+...
+// https://vitejs.dev/config/
+export default defineConfig({
+  ...
+  server: {
+    port: env.PORT,
+  },
+  plugins: [
+    ...
+    addApi({ app }),
+  ],
+  ...
+}) as UserConfig;
+```
+
+Congratulations! You can now use your API routes in your frontend.
+
+### Adding a Component Library
+
+Now we can add a component library to our repo that we can use in our frontend and backend.
+
+In my demo, this package just exports a bunch of functions that return HTML strings.
+
+This is what my `package.json` looks like for the component library.
+
+```json
+{
+  "name": "@packages/ui",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./*": {
+      "types": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .cache dist .turbo"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.0.2"
+  },
+  "devDependencies": {
+    "@packages/eslint-config": "*",
+    "@packages/ts-config": "*",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "typescript": "^5.8.2"
+  }
+}
+```
+
+Note that here I am using conditional exports, setting the type export to the source file and the default export to the final build file. This allows us to resolve our components to their TypeScript source files in dev and resolve to the final build files when building.
+
+Now we can use these components in our frontend and backend.
+
+```ts
+// in either frontend or backend
+import { Button } from "@packages/ui";
+```
+
+### Adding HTMX
+
+You can add HTMX via script import, npm install, or you can yoink the contents of the module and paste it into your code.
+
+I will be doing the latter. We can go ahead and add these files to our public folder since they don't need to be processed. We can import them in our HTML files using script tags like the following:
+
+```html
+<!-- inside the header -->
+<script src="/htmx.js"></script>
+```
+
+I do this because I haven't updated this app in a long time, so when I went to import the module, it took a long time to load the version I had.
+
+Now that we have a frontend, backend, component library, and custom Vite plugins, we're ready to build the next big thing! Happy building.

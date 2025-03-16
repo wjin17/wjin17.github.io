@@ -1,0 +1,45 @@
+---
+title: "Typescript Templates"
+description: "I have a great idea for a new project! Alright, let's make a new directory and set everything up. The first step is to install Typescript. Nice... wait hold on... I need to setup my tsconfig. What's the difference between esm and cjs? Why are there so many rules?"
+pubDate: "Mar 18 2024"
+---
+
+I have a great idea for a new project! Alright, let's make a new directory and set everything up. The first step is to install Typescript. Nice... wait hold on... I need to setup my tsconfig. What's the difference between esm and cjs? Why are there so many rules? 
+
+I've had this dialog with myself so many times and I've had it. So here's a list of templates and a short guide on how to use it.
+
+## Installation guide
+
+Each branch is a separate template. Use the following command to clone the one you want into a target directory.
+
+```bash
+git clone -b <template> git@github.com:wjin17/ts-templates.git <your_project>
+```
+
+## Templates
+
+Templates will be preset with a tsconfig, eslint rules, jest for unit and integration tests, and a basic project structure.
+
+### Base
+
+This is the most basic example. It's useful for running scripts or making small libraries.
+
+```bash
+git clone -b base https://github.com/wjin17/ts-templates/tree/base <your_project>
+```
+
+### Express + React Monorepo
+
+A basic React frontend with an Express backend all in a monorepo.
+
+```bash
+git clone -b express-react https://github.com/wjin17/ts-templates/tree/base <your_project>
+```
+
+### Express + Htmx Monorepo
+
+Uses HTMX and SSE for chatting with an Express backend
+
+```bash
+git clone -b htmx https://github.com/wjin17/ts-templates/tree/base <your_project>
+```

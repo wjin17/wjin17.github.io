@@ -1,0 +1,356 @@
+---
+title: "Workspaces"
+description: "Everything in one place. Share code and share the love. A beginner's guide to using workspaces."
+pubDate: "Apr 5 2024"
+---
+
+[Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces) have quickly become one of my favorite additions in web development. They make it easy to share code, organize files in projects, and depending on the tool, can really improve builds.
+
+## What are workspaces?
+
+Workspaces provide a way to manage multiple packages in a single repository. They can be used to share code, share dependencies, organize files, and improve builds.
+
+## How to use workspaces
+
+For this example, we'll use the native npm workspaces and then we'll look at a tool like Turborepo.
+
+Workspaces are supported in npm (v7+), yarn, and pnpm. Let's look at how to use npm.
+
+### Adding packages
+
+First, we'll need to initialize a new package.json file in the root of our project. I like to keep this file as simple as possible, only containing the project name, scripts, and workspaces.
+
+```json
+{
+  "name": "my-project",
+  "private": true,
+  "scripts": {
+    ... # can be empty for now
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+}
+```
+
+One of the benefits of monorepos is that we can share configs across packages. For our first one, let's make an eslint config that we can use across the project. 
+
+```bash
+npm init -w ./packages/eslint-config -y
+```
+
+This will create a new package in the `packages` directory and add it to the workspace.
+
+Let's update this package.json and remove the stuff we don't need. Here's what I use:
+
+```json
+// packages/eslint-config/package.json
+{
+  "name": "@packages/eslint-config",
+  "type": "module",
+  "exports": {
+    ".": "./eslint.config.js",
+    "./create-config": "./create-config.js"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.8.1",
+    "eslint": "^9.22.0"
+  },
+  "description": "Base ESLint config for repo packages"
+}
+```
+
+Here I am:
+
+1. adding our package to the @packages namespace
+2. declaring that this is a module
+3. exporting the relevant files.
+
+You can install dependencies for specific packages by running:
+
+```bash
+npm install eslint --workspace=@packages/eslint-config
+```
+
+Or you can install dependencies by cd'ing into the package and running the install command normally.
+
+Here are the other files that belong in this package:
+
+```js
+// packages/eslint-config/create-config.js
+import antfu from "@antfu/eslint-config";
+
+export default function createConfig(options, additionalRules) {
+  return antfu(
+    {
+      typescript: true,
+      formatters: true,
+      stylistic: {
+        indent: 2,
+        semi: true,
+        quotes: "double",
+      },
+      ...options,
+    },
+    {
+      rules: {
+        "no-console": ["error", { allow: ["log", "warn", "error", "info"] }],
+        "style/arrow-parens": ["error", "always"],
+        "style/brace-style": ["error", "1tbs"],
+        "style/comma-dangle": ["error", "only-multiline"],
+        "ts/consistent-type-definitions": ["error", "type"],
+        "antfu/no-top-level-await": ["off"],
+        "antfu/if-newline": "off",
+        "node/prefer-global/process": ["off"],
+        "perfectionist/sort-imports": [
+          "error",
+          {
+            tsconfigRootDir: ".",
+          },
+        ],
+        "unicorn/filename-case": "off",
+      },
+      ignores: ["tsconfig.json"],
+      ...additionalRules,
+    }
+  );
+}
+```
+
+```js
+// packages/eslint-config/eslint.config.js
+import createConfig from "./create-config";
+
+export default createConfig({
+  ...
+});
+```
+```ts
+// packages/eslint-config/create-config.d.ts
+import type antfu from "@antfu/eslint-config";
+
+type AntfuParams = Parameters<typeof antfu>;
+type AntfuReturn = ReturnType<typeof antfu>;
+type Options = AntfuParams[0];
+type UserConfigs = AntfuParams[1][];
+export default function createConfig(
+  options?: Options | undefined,
+  ...userConfigs: UserConfigs
+): AntfuReturn;
+export {};
+```
+
+Let's go ahead and do the same thing for our tsconfig.
+
+```bash
+npm init -w ./packages/ts-config -y
+```
+
+```json
+// packages/ts-config/package.json
+{
+  "name": "@packages/ts-config",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}
+```
+
+For the base config, I try to only set stylistic rules.
+
+```json
+// packages/ts-config/base.json
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "nodenext",
+    "allowJs": true,
+    "baseUrl": ".",
+
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "incremental": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/**"]
+}
+```
+
+### Consuming packages
+
+After we've added our packages, we want to use them in our project. Let's add a new package called lib. This will contain the logic for a simple add function.
+
+```bash
+npm init -w ./packages/lib -y
+```
+
+```json
+// packages/lib/package.json
+{
+  "name": "@packages/lib",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./common/*": {
+      "types": "./src/common/*.ts",
+      "default": "./dist/common/*.js"
+    },
+    "./backend/*": {
+      "types": "./src/backend/*.ts",
+      "default": "./dist/backend/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .cache dist .turbo"
+  },
+  "dependencies": {
+    ... # other dependencies
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@packages/eslint-config": "*",
+    "@packages/ts-config": "*",
+    "eslint": "^9.22.0",
+    "eslint-plugin-format": "^1.0.1",
+    "typescript": "latest"
+  }
+}
+
+```
+
+This is what a typical package.json might look like for a package that might be imported by other packages in the repo.
+
+Our package.json looks really similar to the other ones we have in the project but this package has to be compiled with Typescript.
+
+Let's add the eslint config we created before.
+
+```bash
+npm install @packages/eslint-config --workspace=@packages/lib
+```
+
+We can simply import the eslint config we created before and use it here.
+
+```js
+// packages/lib/eslint.config.js
+import createConfig from "@packages/eslint-config/create-config";
+
+export default createConfig({
+  rules: {
+    "unicorn/escape-case": "off",
+  },
+});
+``` 
+
+Let's add a new file to our project and implement the add function.
+
+```ts
+// packages/lib/src/index.ts
+export function add(a: number, b: number) {
+  return a + b;
+}
+```
+
+We can do the same thing for our tsconfig.
+
+```json
+// packages/lib/tsconfig.json
+{
+  "extends": "@packages/ts-config/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./.cache/tsconfig.tsbuildinfo",
+    "lib": ["ES2023"],
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+Now we can make a new package for our app api and web and use this package there the same way we linked our eslint-config and tsconfig here.
+
+### Turborepo
+
+Turborepo is a tool that makes it easy to manage monorepos. The bulk of the features and concepts behind workspaces remain the same when using this tool but now we have a couple of new benefits.
+
+Builds get:
+
+1. Parallelized
+2. Cached
+3. Deduplicated
+4. Optimized
+
+It also ensures that packages that depend on another local package get built after the dependency is built. 
+
+In order to use it, install it in the repo with:
+
+```bash
+npm install --save-dev turbo
+```
+
+Then add a turbo.json file:
+
+```json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "src/**/*.tsx"]
+    },
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "format": {
+      "dependsOn": ["^format"]
+    }
+  }
+}
+```
+
+Then in your package.json, update the following scripts:
+
+```json
+...prev config
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "clean": "turbo clean",
+    "lint": "turbo lint",
+    "format": "turbo format"
+  },
+...rest of config
+```
+
+Future guides will probably be using monorepos so this is a simple reference for that.

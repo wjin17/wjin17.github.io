@@ -1,0 +1,183 @@
+---
+title: "Personal Kubernetes"
+description: "A practical guide to setting up your own Kubernetes cluster"
+pubDate: "Feb 26 2024"
+---
+
+## Why?
+
+With all the PaaS providers like Netlify, Vercel, and Cloudflare, why would you need to run your own deployment infrastructure?
+
+Well, there are a few reasons.
+
+**1. You don't**: You will probably never need this in your life.
+
+**2. Education**: It's a nice sandbox environment to learn about the tools you use in production environments.
+
+**3. Versatility**: You can deploy practically anything, from web applications to databases to machine learning models.
+
+**4. Cost efficiency**: What you save in money, you pay for in time and maintenance, but it can be extremely cost-effective for certain workloads.
+
+## Getting started
+
+### Step 1 - Choosing a provider
+
+According to the [k3s minimum hardware requirements](https://docs.k3s.io/installation/requirements#minimum-hardware-requirements), we need at least 1 CPU and 512MB of RAM. For a more comfortable experience, I recommend 2 vCPUs and 4GB of RAM. I'm using [racknerd](https://my.racknerd.com/aff.php?aff=11002) (affiliate link) because it's a cost-effective option. They frequently have sales, so check their sales page before purchasing.
+
+### Step 2 - Securing your brand new server
+
+Before proceeding with Kubernetes installation, it's crucial to secure your server. Follow the comprehensive guide [here](https://davidserrano.io/how-to-secure-a-server-8-steps-for-linux-server-security) to protect against common attack vectors. At minimum, you should:
+
+- Update your system packages
+- Create a non-root user with sudo privileges
+- Set up SSH key authentication and disable password login
+- Configure a firewall (UFW)
+- Install fail2ban to prevent brute force attacks
+
+### Step 3 - Installing Kubernetes with k3s
+
+We'll use [k3s](https://k3s.io/), a lightweight Kubernetes distribution perfect for resource-constrained environments. It's fully production-ready while requiring fewer resources than standard Kubernetes.
+
+First, SSH into your VPS using your secure setup from Step 2.
+
+Next, we'll customize our installation by disabling some features we won't need:
+
+```bash
+export INSTALL_K3S_EXEC="--disable servicelb --disable traefik --disable local-storage --secrets-encryption"
+```
+
+We're disabling:
+1. **servicelb** - No need for load balancing with a single node
+2. **traefik** - We'll use ingress-nginx and cert-manager for TLS instead
+3. **local-storage** - With a single node, we can manage our own persistent volumes
+
+Now run the installation command:
+
+```bash
+curl -sfL https://get.k3s.io | sh -
+```
+
+Verify that everything is working:
+
+```bash 
+sudo kubectl get nodes
+```
+
+### Step 4 - Setting up your local environment
+
+To manage your cluster from your local machine, you'll need to:
+
+1. Install kubectl locally:
+
+   **macOS (Homebrew)**:
+   ```bash
+   brew install kubectl
+   ```
+
+   **Linux/macOS (direct download)**:
+   ```bash
+   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/$(uname -s | tr '[:upper:]' '[:lower:]')/$(uname -m)/kubectl"
+   chmod +x ./kubectl
+   sudo mv ./kubectl /usr/local/bin/kubectl
+   ```
+
+   **Windows**:
+   ```powershell
+   curl -LO "https://dl.k8s.io/release/v1.28.4/bin/windows/amd64/kubectl.exe"
+   # Add to your PATH
+   ```
+
+2. Copy the kubeconfig from your server:
+
+   ```bash
+   mkdir -p ~/.kube
+   scp -i ~/.ssh/your_key username@your.server.ip:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+   ```
+
+3. Modify the server address in the config to point to your server's public IP:
+
+   ```bash
+   sed -i '' "s/127.0.0.1/your.server.ip/" ~/.kube/config
+   ```
+
+4. Secure your config file:
+
+   ```bash
+   chmod 600 ~/.kube/config
+   ```
+
+5. Test your connection:
+
+   ```bash
+   kubectl get nodes
+   ```
+
+### Step 5 - Essential components to install
+
+For a functional cluster, consider installing:
+
+1. **ingress-nginx** for routing external traffic:
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+   ```
+
+2. **cert-manager** for automatic TLS certificates:
+
+   ```bash
+   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
+   ```
+
+3. **metrics-server** for resource monitoring:
+
+   ```bash
+   kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+   ```
+
+### Step 6 - Useful commands
+
+Here are some commonly used kubectl commands:
+
+```bash
+# Check node status
+kubectl get nodes
+
+# View all running pods
+kubectl get pods --all-namespaces
+
+# Apply a configuration
+kubectl apply -f config.yaml
+
+# View logs for a pod
+kubectl logs pod-name -n namespace
+
+# Get a shell in a pod
+kubectl exec -it pod-name -n namespace -- /bin/sh
+
+# View resource usage
+kubectl top nodes
+kubectl top pods --all-namespaces
+```
+
+### Step 7 - Maintenance best practices
+
+1. **Regular updates**: Keep your k3s installation updated
+   ```bash
+   curl -sfL https://get.k3s.io | sh -
+   ```
+
+2. **Backup etcd data**:
+   ```bash
+   sudo cp -r /var/lib/rancher/k3s/server/db/etcd /path/to/backup/etcd-$(date +%Y%m%d)
+   ```
+
+3. **Monitor resource usage** to ensure your applications have sufficient resources
+
+4. **Set up monitoring** with Prometheus and Grafana for better visibility
+
+## Conclusion
+
+You now have a functional Kubernetes cluster that you can use for learning, testing, or even running small production workloads. While this setup is simpler than enterprise-grade Kubernetes deployments, it provides an excellent foundation for understanding container orchestration concepts and practices.
+
+Remember that maintaining your own Kubernetes cluster requires ongoing attention and updates, but the knowledge gained is invaluable for modern cloud-native development.
+
