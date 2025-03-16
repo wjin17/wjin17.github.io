@@ -1,1 +1,8 @@
-<code><slot /> </code>
+---
+type Props = {
+  class: string;
+};
+const { class: className, ...props } = Astro.props;
+---
+
+<code class={`${className ?? ""}`} {...props}><slot /></code>

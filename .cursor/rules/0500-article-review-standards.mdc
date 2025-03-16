@@ -1,0 +1,101 @@
+---
+description: FOLLOW when REVIEWING or EDITING article content to ENSURE accuracy, consistency, and quality across 
+globs: content/**/*.md content/**/*.mdx
+alwaysApply: false
+---
+# Article Review Standards
+
+## Context
+- When reviewing draft or published articles
+- When editing technical documentation
+- When creating tutorials or guides
+- Before publishing any markdown-based content
+
+## Requirements
+- Verify technical accuracy of all statements and claims
+- Validate all code examples work as described
+- Ensure proper markdown structure with correct heading hierarchy
+- Maintain clear, concise writing with logical flow
+- Include appropriate visual elements to enhance comprehension
+- Check all links direct to correct resources
+- Apply consistent formatting and styling throughout
+
+## Examples
+<example>
+```md
+# Building a React Component
+
+## Overview
+This tutorial explains how to create a reusable button component in React with TypeScript.
+
+## Prerequisites
+- Node.js v18+
+- Basic TypeScript knowledge
+
+## Implementation
+
+```tsx
+import React from 'react';
+
+type ButtonProps = {
+  label: string;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+};
+
+export const Button: React.FC<ButtonProps> = ({ 
+  label, 
+  onClick, 
+  variant = 'primary' 
+}) => {
+  return (
+    <button 
+      className={`btn btn-${variant}`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+};
+```
+
+## Usage
+Import the Button component and use it in your application:
+
+```tsx
+import { Button } from './Button';
+
+function App() {
+  return (
+    <Button 
+      label="Click me" 
+      onClick={() => alert('Clicked!')} 
+    />
+  );
+}
+```
+```
+
+Good article with proper hierarchy, code validation, clear explanations, and proper formatting
+</example>
+
+<example type="invalid">
+```md
+React Button Component
+
+Here's how to make a button:
+
+```
+function Button(props) {
+  return <button>{props.text}</button>
+}
+```
+
+To use it just do:
+Button("click me")
+```
+
+Incorrect: Poor heading structure, invalid code example (React components need JSX syntax and are used as JSX elements, not called as functions), missing proper code block language identifiers, and lack of proper explanations
+</example>
+
+<version>1.0.0</version>
